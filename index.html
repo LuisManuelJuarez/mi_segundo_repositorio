@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RetailSystem 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b0f1a;--surface:#131929;--card:#1a2235;--border:#232d42;
+  --text:#e8edf5;--muted:#6b7a99;
+  --blue:#3b82f6;--green:#22c55e;--orange:#f97316;--yellow:#f59e0b;
+  --red:#ef4444;--purple:#a78bfa;
+  --font:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;flex-direction:column}
+button{cursor:pointer;font-family:var(--font)}
+input,select,textarea{font-family:var(--font)}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--surface)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+/* ── LAYOUT ── */
+#app{display:flex;height:100vh;overflow:hidden}
+
+/* ── SIDEBAR ── */
+#sidebar{
+  width:220px;background:var(--surface);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;flex-shrink:0;
+}
+.sidebar-logo{padding:22px 20px 16px;border-bottom:1px solid var(--border)}
+.sidebar-logo .l1{font-family:var(--mono);font-weight:700;font-size:14px;color:var(--blue);letter-spacing:.04em}
+.sidebar-logo .l2{font-family:var(--mono);font-weight:700;font-size:14px;color:var(--text);letter-spacing:.04em}
+.sidebar-logo .l3{font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:.06em}
+#nav{flex:1;padding:12px 10px;overflow-y:auto}
+.nav-btn{
+  width:100%;display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:8px;border:none;
+  background:transparent;color:var(--muted);
+  font-weight:400;font-size:13px;margin-bottom:2px;
+  text-align:left;transition:all .15s;cursor:pointer;
+}
+.nav-btn:hover{background:rgba(255,255,255,.04);color:var(--text)}
+.nav-btn.active{background:rgba(59,130,246,.15);color:var(--blue);font-weight:700}
+.nav-icon{font-size:16px;opacity:.6}
+.nav-btn.active .nav-icon{opacity:1}
+.nav-badge{
+  margin-left:auto;background:var(--red);color:#fff;
+  border-radius:50%;width:18px;height:18px;font-size:10px;
+  font-weight:800;display:flex;align-items:center;justify-content:center;
+}
+.sidebar-user{padding:14px 16px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.avatar{
+  width:32px;height:32px;border-radius:50%;
+  background:#3b82f622;border:2px solid #3b82f644;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:var(--blue);flex-shrink:0;
+}
+.avatar.lg{width:64px;height:64px;font-size:22px;font-weight:800;border-width:3px}
+.user-name{font-size:12px;font-weight:700}
+.user-role{font-size:10px;color:var(--muted)}
+
+/* ── MAIN ── */
+#main{flex:1;overflow:auto;display:flex;flex-direction:column}
+#topbar{
+  padding:16px 28px;border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+  background:var(--surface);flex-shrink:0;
+}
+.topbar-title{font-weight:800;font-size:17px}
+.topbar-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.topbar-right{display:flex;gap:10px;align-items:center}
+.sys-date{font-size:11px;color:var(--muted);background:var(--card);border:1px solid var(--border);border-radius:6px;padding:5px 12px}
+.sys-dot{width:8px;height:8px;border-radius:50%;background:var(--green)}
+.sys-status{font-size:12px;color:var(--green)}
+#content{flex:1;padding:24px 28px;overflow-y:auto}
+
+/* ── VIEWS ── */
+.view{display:none}
+.view.active{display:block}
+
+/* ── BADGES ── */
+.badge{
+  border-radius:20px;padding:2px 10px;font-size:11px;
+  font-weight:600;letter-spacing:.04em;display:inline-block;
+}
+
+/* ── STAT CARDS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;padding:22px 24px;position:relative;overflow:hidden;
+}
+.stat-top-bar{position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0}
+.stat-label{font-size:12px;color:var(--muted);font-weight:500;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em}
+.stat-val{font-size:28px;font-weight:800;font-family:var(--mono);margin-bottom:4px}
+.stat-sub{font-size:12px;color:var(--muted)}
+.stat-icon{position:absolute;top:18px;right:18px;font-size:28px;opacity:.15}
+
+/* ── GRID HALVES ── */
+.grid-2{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;margin-bottom:24px}
+.grid-half{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px}
+.panel-title{font-weight:700;font-size:15px;margin-bottom:4px}
+.panel-sub{font-size:12px;color:var(--muted);margin-bottom:20px}
+
+/* ── BAR CHART ── */
+#chart-wrap{display:flex;align-items:flex-end;gap:12px;height:140px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%}
+.bar-inner{flex:1;width:100%;display:flex;flex-direction:column;justify-content:flex-end;position:relative}
+.bar-fill{width:100%;border-radius:4px 4px 0 0;cursor:pointer;transition:opacity .2s}
+.bar-fill:hover{opacity:.75}
+.bar-meta-line{position:absolute;width:100%;height:3px;border-radius:2px;background:#f59e0b44}
+.bar-label{font-size:11px;color:var(--muted);font-weight:600}
+.chart-legend{display:flex;gap:16px;font-size:11px;color:var(--muted)}
+.chart-legend span{display:flex;align-items:center;gap:5px}
+
+/* ── MINI BAR ── */
+.mini-bar-wrap{background:var(--border);border-radius:4px;height:6px;width:100%;overflow:hidden;margin:4px 0}
+.mini-bar-fill{height:100%;border-radius:4px;transition:width .6s}
+
+/* ── ALERTS ── */
+.alert-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:12px}
+.alert-row:last-child{border-bottom:none}
+.alert-icon{font-size:18px}
+.alert-msg{flex:1}
+
+/* ── TABLE ── */
+.tbl-wrap{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+thead tr{border-bottom:1px solid var(--border)}
+th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+tbody tr{border-bottom:1px solid var(--border);transition:background .15s;cursor:pointer}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:rgba(255,255,255,.025)}
+tbody tr.selected{background:rgba(59,130,246,.08)}
+td{padding:13px 16px;font-size:13px}
+.td-mono{font-family:var(--mono);font-size:13px}
+.td-green{color:var(--green);font-weight:700}
+.td-blue{color:var(--blue);font-weight:700}
+.td-muted{color:var(--muted)}
+
+/* ── CLIENT AVATAR ── */
+.cli-cell{display:flex;align-items:center;gap:10px}
+.cli-name{font-weight:600;font-size:13px}
+.cli-email{font-size:11px;color:var(--muted)}
+
+/* ── HEADER BAR ── */
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.section-title{font-weight:700;font-size:18px}
+.section-count{font-size:12px;color:var(--muted);margin-top:2px}
+.header-actions{display:flex;gap:10px}
+
+/* ── INPUTS ── */
+.inp{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:8px;padding:8px 14px;color:var(--text);
+  font-size:13px;outline:none;transition:border-color .2s;
+}
+.inp:focus{border-color:var(--blue)}
+.inp-sm{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:7px;padding:8px 12px;color:var(--text);
+  font-size:13px;width:100%;outline:none;
+}
+.inp-label{font-size:11px;color:var(--muted);margin-bottom:5px;font-weight:600;display:block}
+.form-grid{display:grid;gap:10px;align-items:end}
+
+/* ── BUTTONS ── */
+.btn{border:none;border-radius:8px;padding:9px 18px;font-weight:600;font-size:13px;transition:opacity .2s}
+.btn:hover{opacity:.85}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-green{background:var(--green);color:#fff}
+.btn-ghost{background:var(--surface);border:1px solid var(--border);color:var(--text)}
+
+/* ── FORM ROW ── */
+.form-row{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:12px;padding:20px;margin-bottom:16px;
+  display:none;
+}
+.form-row.open{display:grid}
+
+/* ── DETAIL PANEL ── */
+#crm-layout{display:grid;grid-template-columns:1fr;gap:16px}
+#crm-layout.with-detail{grid-template-columns:1fr 360px}
+#detail-panel{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;padding:24px;height:fit-content;display:none;
+}
+#detail-panel.open{display:block}
+.detail-top{display:flex;justify-content:space-between;margin-bottom:20px}
+.detail-avatar-wrap{display:flex;flex-direction:column;align-items:center;margin-bottom:24px}
+.detail-name{font-weight:700;font-size:16px;margin-top:12px}
+.detail-email{font-size:12px;color:var(--muted);margin-top:4px}
+.detail-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+.detail-row:last-of-type{border-bottom:none}
+.detail-key{color:var(--muted)}
+.detail-val{font-weight:600}
+.detail-actions{display:flex;gap:8px;margin-top:20px}
+.detail-actions .btn{flex:1;font-size:12px;padding:10px}
+
+/* ── PIPELINE ── */
+.pipe-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.pipe-stat{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:10px;padding:14px 16px;
+}
+.pipe-stat-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.pipe-stat-val{font-family:var(--mono);font-size:22px;font-weight:800;margin-top:4px}
+.pipe-stat-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.pipe-board{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-items:start}
+.pipe-col{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:12px;min-height:200px;
+  transition:background .2s;
+}
+.pipe-col.drag-over{background:rgba(59,130,246,.08);border-color:var(--blue)}
+.pipe-col-header{font-size:12px;font-weight:700;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.pipe-col-count{border-radius:10px;padding:1px 8px;font-size:11px}
+.opp-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:10px;padding:14px;cursor:grab;
+  transition:transform .15s,box-shadow .15s;margin-bottom:8px;
+}
+.opp-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.opp-card:active{cursor:grabbing}
+.opp-client{font-size:13px;font-weight:700;margin-bottom:3px}
+.opp-product{font-size:11px;color:var(--muted);margin-bottom:10px}
+.opp-footer{display:flex;justify-content:space-between;align-items:center}
+.opp-value{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--green)}
+.opp-prob{font-size:10px;color:var(--muted);background:var(--surface);border-radius:4px;padding:2px 6px}
+.opp-bar-wrap{background:var(--border);border-radius:3px;height:4px;overflow:hidden;margin-top:10px}
+.opp-bar-fill{height:100%;transition:width .5s}
+.opp-meta{font-size:10px;color:var(--muted);margin-top:8px;display:flex;justify-content:space-between}
+.drag-hint{font-size:12px;color:var(--muted);text-align:center;margin-top:12px}
+
+/* ── CHAT ── */
+#chat-layout{display:grid;grid-template-columns:280px 1fr;gap:16px;height:calc(100vh - 160px)}
+#inbox{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;overflow:hidden;display:flex;flex-direction:column;
+}
+.inbox-header{padding:16px;border-bottom:1px solid var(--border);font-weight:700;font-size:14px;display:flex;justify-content:space-between;align-items:center}
+#inbox-list{overflow-y:auto;flex:1}
+.inbox-item{
+  padding:14px 16px;border-bottom:1px solid var(--border);
+  cursor:pointer;transition:background .15s;
+  border-left:3px solid transparent;
+}
+.inbox-item:hover{background:rgba(255,255,255,.02)}
+.inbox-item.active{background:rgba(59,130,246,.1);border-left-color:var(--blue)}
+.inbox-item-top{display:flex;justify-content:space-between;margin-bottom:4px}
+.inbox-name{font-size:12px;font-weight:700}
+.inbox-time{font-size:10px;color:var(--muted)}
+.inbox-channel{font-size:10px;font-weight:600}
+.inbox-msg{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:4px}
+.unread-dot{width:6px;height:6px;background:var(--blue);border-radius:50%;margin-top:6px}
+#chat-window{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;display:flex;flex-direction:column;overflow:hidden;
+}
+#chat-header{
+  padding:14px 20px;border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+}
+#chat-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px}
+.msg-wrap{display:flex;gap:8px;align-items:flex-end}
+.msg-wrap.right{justify-content:flex-end}
+.msg-bubble{
+  max-width:70%;border-radius:14px;padding:10px 14px;
+  font-size:13px;line-height:1.5;
+}
+.msg-bubble.client{background:var(--surface);border:1px solid var(--border);border-radius:14px 14px 14px 4px}
+.msg-bubble.bot{background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);border-radius:14px 14px 4px 14px}
+.msg-bubble.agent{background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.3);border-radius:14px 14px 4px 14px}
+.msg-label{font-size:10px;font-weight:700;margin-bottom:4px}
+.msg-time{font-size:10px;color:var(--muted);margin-top:3px}
+.typing-bubble{background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);border-radius:14px 14px 4px 14px;padding:10px 16px;font-size:13px;color:var(--purple)}
+#chat-input-row{
+  padding:14px 16px;border-top:1px solid var(--border);
+  display:flex;gap:10px;
+}
+#chat-input{
+  flex:1;background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;padding:10px 16px;color:var(--text);
+  font-size:13px;outline:none;
+}
+#chat-input:focus{border-color:var(--blue)}
+
+/* ── PEDIDOS ── */
+.pedido-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.pedido-stat{
+  background:var(--card);border-radius:10px;padding:14px 16px;
+}
+.pedido-stat-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.pedido-stat-val{font-family:var(--mono);font-size:22px;font-weight:800;margin-top:4px}
+select.estado-select{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:6px;padding:4px 8px;color:var(--text);
+  font-size:11px;cursor:pointer;font-family:var(--font);
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div class="sidebar-logo">
+      <div class="l1">RETAIL</div>
+      <div class="l2">SYSTEM</div>
+      <div class="l3">v2.0 · 2026</div>
+    </div>
+    <nav id="nav">
+      <button class="nav-btn active" data-view="dashboard">
+        <span class="nav-icon">◈</span> Dashboard
+      </button>
+      <button class="nav-btn" data-view="crm">
+        <span class="nav-icon">◎</span> Clientes CRM
+      </button>
+      <button class="nav-btn" data-view="pipeline">
+        <span class="nav-icon">◧</span> Pipeline
+      </button>
+      <button class="nav-btn" data-view="chat">
+        <span class="nav-icon">◉</span> Atención al Cliente
+        <span class="nav-badge">4</span>
+      </button>
+      <button class="nav-btn" data-view="pedidos">
+        <span class="nav-icon">◫</span> Pedidos / POS
+      </button>
+    </nav>
+    <div class="sidebar-user">
+      <div class="avatar">AD</div>
+      <div>
+        <div class="user-name">Admin</div>
+        <div class="user-role">Gerente Retail</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main">
+    <div id="topbar">
+      <div>
+        <div class="topbar-title" id="topbar-title">Dashboard</div>
+        <div class="topbar-sub">Empresa Retail · Sistema Integrado</div>
+      </div>
+      <div class="topbar-right">
+        <div class="sys-date" id="sys-date"></div>
+        <div class="sys-dot"></div>
+        <div class="sys-status">Sistema activo</div>
+      </div>
+    </div>
+    <div id="content">
+
+      <!-- ══ DASHBOARD ══ -->
+      <div class="view active" id="view-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-top-bar" style="background:var(--blue)"></div>
+            <div class="stat-label">Ventas Feb</div>
+            <div class="stat-val" style="color:var(--blue)">$224K</div>
+            <div class="stat-sub">Meta: $220K · 102%</div>
+            <div class="stat-icon">💰</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-top-bar" style="background:var(--green)"></div>
+            <div class="stat-label">Conversión</div>
+            <div class="stat-val" style="color:var(--green)">38.4%</div>
+            <div class="stat-sub">↑ 60% vs mes anterior</div>
+            <div class="stat-icon">🎯</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-top-bar" style="background:var(--yellow)"></div>
+            <div class="stat-label">CSAT</div>
+            <div class="stat-val" style="color:var(--yellow)">4.3/5</div>
+            <div class="stat-sub">↑ 34% de mejora</div>
+            <div class="stat-icon">⭐</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-top-bar" style="background:var(--purple)"></div>
+            <div class="stat-label">Pedidos activos</div>
+            <div class="stat-val" style="color:var(--purple)">18</div>
+            <div class="stat-sub">3 requieren atención</div>
+            <div class="stat-icon">📦</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <!-- Ventas chart -->
+          <div class="panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+              <div>
+                <div class="panel-title">Ventas vs. Meta</div>
+                <div class="panel-sub" style="margin-bottom:0">Últimos 6 meses</div>
+              </div>
+              <div class="chart-legend">
+                <span><span style="width:10px;height:10px;border-radius:2px;background:var(--blue);display:inline-block"></span>Ventas</span>
+                <span><span style="width:10px;height:3px;background:var(--yellow);display:inline-block"></span>Meta</span>
+              </div>
+            </div>
+            <div id="chart-wrap"></div>
+          </div>
+
+          <!-- Top productos -->
+          <div class="panel">
+            <div class="panel-title">Top Productos</div>
+            <div class="panel-sub">Por ingresos generados</div>
+            <div id="top-productos"></div>
+          </div>
+        </div>
+
+        <div class="grid-half">
+          <!-- Pipeline resumen -->
+          <div class="panel">
+            <div class="panel-title">Pipeline de Ventas</div>
+            <div class="panel-sub">Distribución por etapa</div>
+            <div id="dash-pipeline"></div>
+          </div>
+          <!-- Alertas -->
+          <div class="panel">
+            <div class="panel-title">Alertas y Tareas</div>
+            <div class="panel-sub">Requieren atención hoy</div>
+            <div id="dash-alerts"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ CRM ══ -->
+      <div class="view" id="view-crm">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Clientes</div>
+            <div class="section-count" id="crm-count"></div>
+          </div>
+          <div class="header-actions">
+            <input class="inp" id="crm-search" placeholder="Buscar cliente..." style="width:220px"/>
+            <button class="btn btn-blue" onclick="toggleForm('crm-form')">+ Nuevo cliente</button>
+          </div>
+        </div>
+
+        <div class="form-row" id="crm-form" style="grid-template-columns:1fr 1fr 1fr auto auto;gap:10px">
+          <div><label class="inp-label">Nombre</label><input class="inp-sm" id="f-nombre" placeholder="Nombre completo"/></div>
+          <div><label class="inp-label">Email</label><input class="inp-sm" id="f-email" type="email" placeholder="correo@ejemplo.com"/></div>
+          <div><label class="inp-label">Teléfono</label><input class="inp-sm" id="f-tel" placeholder="555-0000"/></div>
+          <div><label class="inp-label">Segmento</label>
+            <select class="inp-sm" id="f-seg"><option>Nuevo</option><option>Regular</option><option>VIP</option></select>
+          </div>
+          <button class="btn btn-green" style="margin-top:22px;white-space:nowrap" onclick="guardarCliente()">Guardar</button>
+        </div>
+
+        <div id="crm-layout">
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr>
+                <th>Cliente</th><th>Segmento</th><th>Compras</th>
+                <th>Valor total</th><th>Última compra</th><th>Estado</th><th></th>
+              </tr></thead>
+              <tbody id="crm-tbody"></tbody>
+            </table>
+          </div>
+          <div id="detail-panel"></div>
+        </div>
+      </div>
+
+      <!-- ══ PIPELINE ══ -->
+      <div class="view" id="view-pipeline">
+        <div class="pipe-stats" id="pipe-stats"></div>
+        <div class="pipe-board" id="pipe-board"></div>
+        <div class="drag-hint">💡 Arrastra las tarjetas entre columnas para actualizar la etapa</div>
+      </div>
+
+      <!-- ══ CHAT ══ -->
+      <div class="view" id="view-chat">
+        <div id="chat-layout">
+          <div id="inbox">
+            <div class="inbox-header">
+              Bandeja Unificada
+              <span class="badge" style="background:#ef444422;color:var(--red)">4 nuevos</span>
+            </div>
+            <div id="inbox-list"></div>
+          </div>
+          <div id="chat-window">
+            <div id="chat-header">
+              <div style="display:flex;align-items:center;gap:12px">
+                <div class="avatar" id="chat-avatar" style="width:38px;height:38px;font-size:13px">AG</div>
+                <div>
+                  <div style="font-weight:700;font-size:14px" id="chat-client-name">Ana García</div>
+                  <div style="font-size:11px;color:var(--muted)"><span id="chat-channel">WhatsApp</span> · <span style="color:var(--green)">● En línea</span></div>
+                </div>
+              </div>
+              <div style="display:flex;gap:8px">
+                <span class="badge" style="background:#a78bfa22;color:var(--purple);border:1px solid #a78bfa44">🤖 Asistido por IA</span>
+                <span class="badge" style="background:#22c55e22;color:var(--green);border:1px solid #22c55e44">Activo</span>
+              </div>
+            </div>
+            <div id="chat-messages"></div>
+            <div id="chat-input-row">
+              <input id="chat-input" placeholder="Responder al cliente..."/>
+              <button class="btn btn-blue" id="chat-send">Enviar →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PEDIDOS ══ -->
+      <div class="view" id="view-pedidos">
+        <div class="pedido-stats" id="pedido-stats"></div>
+        <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+          <button class="btn btn-blue" onclick="toggleForm('pedido-form')">+ Nuevo pedido</button>
+        </div>
+        <div class="form-row" id="pedido-form" style="grid-template-columns:1fr 1fr 80px 1fr auto;gap:10px">
+          <div><label class="inp-label">Cliente</label><input class="inp-sm" id="p-cliente" placeholder="Nombre del cliente"/></div>
+          <div><label class="inp-label">Producto</label><input class="inp-sm" id="p-producto" placeholder="Nombre del producto"/></div>
+          <div><label class="inp-label">Cant.</label><input class="inp-sm" id="p-qty" type="number" value="1" min="1"/></div>
+          <div><label class="inp-label">Precio MXN</label><input class="inp-sm" id="p-precio" type="number" placeholder="0.00"/></div>
+          <button class="btn btn-green" style="margin-top:22px" onclick="guardarPedido()">Crear</button>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th># Pedido</th><th>Cliente</th><th>Producto</th>
+              <th>Cant.</th><th>Total</th><th>Estado</th><th>Fecha</th><th>Actualizar</th>
+            </tr></thead>
+            <tbody id="pedido-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+// ══════════════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════════════
+const SEG_COLORS={VIP:"#f59e0b",Regular:"#3b82f6",Nuevo:"#22c55e"};
+const ETAPA_COLORS={Contacto:"#3b82f6",Propuesta:"#f59e0b","Negociación":"#a78bfa",Ganado:"#22c55e",Perdido:"#ef4444"};
+const CANAL_COLORS={WhatsApp:"#25d366","Chat Web":"#3b82f6",Instagram:"#e1306c"};
+const ESTADO_COLORS={Entregado:"#22c55e","En tránsito":"#3b82f6",Procesando:"#f59e0b",Pendiente:"#6b7a99"};
+
+let clientes=[
+  {id:1,nombre:"Ana García",email:"ana@gmail.com",telefono:"555-1234",segmento:"VIP",compras:12,valor:8400,ultima:"2026-02-20",estado:"Activo"},
+  {id:2,nombre:"Carlos Mendoza",email:"carlos@hotmail.com",telefono:"555-2345",segmento:"Regular",compras:4,valor:1200,ultima:"2026-02-10",estado:"Activo"},
+  {id:3,nombre:"Sofía Ruiz",email:"sofia@gmail.com",telefono:"555-3456",segmento:"Nuevo",compras:1,valor:350,ultima:"2026-02-25",estado:"Activo"},
+  {id:4,nombre:"Miguel Torres",email:"miguel@empresa.mx",telefono:"555-4567",segmento:"VIP",compras:24,valor:21500,ultima:"2026-02-18",estado:"Activo"},
+  {id:5,nombre:"Laura Díaz",email:"laura@gmail.com",telefono:"555-5678",segmento:"Regular",compras:7,valor:2800,ultima:"2026-01-30",estado:"Inactivo"},
+  {id:6,nombre:"Roberto Jiménez",email:"rjimenez@corp.mx",telefono:"555-6789",segmento:"Regular",compras:3,valor:950,ultima:"2026-02-05",estado:"Activo"},
+];
+
+let pipeline=[
+  {id:1,cliente:"Pedro Salinas",producto:"Laptop Pro 15",valor:18500,etapa:"Contacto",prob:20,vendedor:"María L.",fecha:"2026-02-26"},
+  {id:2,cliente:"Empresa ABC",producto:"Pack Oficina x10",valor:42000,etapa:"Propuesta",prob:50,vendedor:"Juan R.",fecha:"2026-02-24"},
+  {id:3,cliente:"Claudia Vera",producto:'Smart TV 55"',valor:12800,etapa:"Negociación",prob:75,vendedor:"María L.",fecha:"2026-02-22"},
+  {id:4,cliente:"Tech Solutions",producto:"Servidores x3",valor:95000,etapa:"Propuesta",prob:40,vendedor:"Carlos A.",fecha:"2026-02-20"},
+  {id:5,cliente:"Mario Hernández",producto:"Celular Galaxy S25",valor:8900,etapa:"Negociación",prob:80,vendedor:"Juan R.",fecha:"2026-02-27"},
+  {id:6,cliente:"Distribuidora Norte",producto:"Electrodomésticos x5",valor:28000,etapa:"Ganado",prob:100,vendedor:"Carlos A.",fecha:"2026-02-15"},
+  {id:7,cliente:"Ana Robles",producto:"Refrigerador DoubleDoor",valor:15600,etapa:"Contacto",prob:15,vendedor:"María L.",fecha:"2026-02-28"},
+  {id:8,cliente:"ImportMax",producto:"Aires acondicionados x8",valor:64000,etapa:"Ganado",prob:100,vendedor:"Juan R.",fecha:"2026-02-12"},
+];
+
+let pedidos=[
+  {id:"PED-001",cliente:"Ana García",producto:"iPhone 15 Pro",cantidad:1,precio:24500,estado:"Entregado",fecha:"2026-02-20"},
+  {id:"PED-002",cliente:"Miguel Torres",producto:"MacBook Air M3",cantidad:2,precio:35000,estado:"En tránsito",fecha:"2026-02-25"},
+  {id:"PED-003",cliente:"Carlos Mendoza",producto:"AirPods Pro",cantidad:1,precio:4200,estado:"Procesando",fecha:"2026-02-27"},
+  {id:"PED-004",cliente:"Sofía Ruiz",producto:"Smart Watch Ultra",cantidad:1,precio:9800,estado:"Pendiente",fecha:"2026-02-28"},
+  {id:"PED-005",cliente:"Empresa ABC",producto:"Monitor 4K x3",cantidad:3,precio:6300,estado:"Entregado",fecha:"2026-02-18"},
+];
+
+const ventasMes=[
+  {mes:"Sep",ventas:185000,meta:200000},{mes:"Oct",ventas:212000,meta:200000},
+  {mes:"Nov",ventas:198000,meta:210000},{mes:"Dic",ventas:340000,meta:300000},
+  {mes:"Ene",ventas:156000,meta:180000},{mes:"Feb",ventas:224000,meta:220000},
+];
+
+const productosTop=[
+  {nombre:"iPhone 15 Pro",ventas:48,ingreso:1176000,stock:12},
+  {nombre:"MacBook Air M3",ventas:31,ingreso:1085000,stock:5},
+  {nombre:"Samsung Galaxy S25",ventas:67,ingreso:596300,stock:23},
+  {nombre:"AirPods Pro",ventas:112,ingreso:470400,stock:45},
+  {nombre:'Smart TV 55"',ventas:29,ingreso:371200,stock:8},
+];
+
+let mensajes=[
+  {id:1,cliente:"Ana García",canal:"WhatsApp",mensaje:"Hola, ¿tienen el iPhone 16 en color negro?",hora:"10:23",leido:false,avatar:"AG"},
+  {id:2,cliente:"Usuario Web",canal:"Chat Web",mensaje:"¿Cuál es el tiempo de entrega para CDMX?",hora:"10:45",leido:false,avatar:"UW"},
+  {id:3,cliente:"Carlos M.",canal:"Instagram",mensaje:"Vi el post del Samsung, ¿hay meses sin intereses?",hora:"11:02",leido:true,avatar:"CM"},
+  {id:4,cliente:"Laura Díaz",canal:"WhatsApp",mensaje:"Mi pedido PED-002 no ha llegado",hora:"11:30",leido:false,avatar:"LD"},
+];
+
+let chatConv=[
+  {from:"cliente",text:"Hola, ¿tienen el iPhone 16 en color negro?",time:"10:23"},
+  {from:"bot",text:"¡Hola Ana! 👋 Sí, el iPhone 16 está disponible en color negro en modelos base (128GB) y Pro (256GB). ¿Cuál te interesa?",time:"10:23"},
+];
+
+let selectedClientId=null;
+let dragId=null;
+
+// ══════════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════════
+const fmt=n=>new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN",maximumFractionDigits:0}).format(n);
+const fmtK=n=>n>=1000?`$${(n/1000).toFixed(0)}K`:`$${n}`;
+const initials=s=>s.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
+const badge=(label,color)=>`<span class="badge" style="background:${color}22;color:${color};border:1px solid ${color}44">${label}</span>`;
+const miniBar=(val,max,color)=>`<div class="mini-bar-wrap"><div class="mini-bar-fill" style="width:${Math.min(100,(val/max)*100)}%;background:${color}"></div></div>`;
+
+// ══════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════
+const TITLES={dashboard:"Dashboard",crm:"Clientes CRM",pipeline:"Pipeline de Ventas",chat:"Atención al Cliente",pedidos:"Pedidos / POS"};
+
+document.querySelectorAll(".nav-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    const view=btn.dataset.view;
+    document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+    document.getElementById(`view-${view}`).classList.add("active");
+    document.getElementById("topbar-title").textContent=TITLES[view];
+    if(view==="crm") renderCRM();
+    if(view==="pipeline") renderPipeline();
+    if(view==="chat") renderChat();
+    if(view==="pedidos") renderPedidos();
+  });
+});
+
+// Date
+document.getElementById("sys-date").textContent=new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"});
+
+// ══════════════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════════════
+function renderDashboard(){
+  // Chart
+  const maxV=Math.max(...ventasMes.map(m=>Math.max(m.ventas,m.meta)));
+  const colors=["#3b82f6","#22c55e","#3b82f6","#22c55e","#3b82f6","#22c55e"];
+  document.getElementById("chart-wrap").innerHTML=ventasMes.map((m,i)=>`
+    <div class="bar-col">
+      <div class="bar-inner">
+        <div class="bar-meta-line" style="bottom:${(m.meta/maxV)*130}px"></div>
+        <div class="bar-fill" title="${fmtK(m.ventas)}" style="height:${(m.ventas/maxV)*130}px;background:${m.ventas>=m.meta?"linear-gradient(180deg,#22c55e,#16a34a)":"linear-gradient(180deg,#3b82f6,#1d4ed8)"}"></div>
+      </div>
+      <div class="bar-label">${m.mes}</div>
+    </div>`).join("");
+
+  // Top productos
+  const bColors=["#3b82f6","#22c55e","#f59e0b","#a78bfa","#f97316"];
+  document.getElementById("top-productos").innerHTML=productosTop.map((p,i)=>`
+    <div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+        <span style="font-size:12px;font-weight:600">${p.nombre}</span>
+        <span style="font-size:12px;color:var(--muted);font-family:var(--mono)">${fmtK(p.ingreso)}</span>
+      </div>
+      ${miniBar(p.ingreso,productosTop[0].ingreso,bColors[i])}
+      <div style="font-size:10px;color:var(--muted);margin-top:3px">${p.ventas} unidades · Stock: ${p.stock}</div>
+    </div>`).join("");
+
+  // Pipeline summary
+  const etapas=["Contacto","Propuesta","Negociación","Ganado"];
+  document.getElementById("dash-pipeline").innerHTML=etapas.map(e=>{
+    const items=pipeline.filter(p=>p.etapa===e);
+    const total=items.reduce((s,p)=>s+p.valor,0);
+    return `<div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="width:8px;height:8px;border-radius:50%;background:${ETAPA_COLORS[e]};display:inline-block"></span>
+          <span style="font-size:12px;font-weight:600">${e}</span>
+          <span style="font-size:11px;color:var(--muted)">(${items.length})</span>
+        </div>
+        <span style="font-size:12px;color:var(--muted);font-family:var(--mono)">${fmtK(total)}</span>
+      </div>
+      ${miniBar(total,200000,ETAPA_COLORS[e])}
+    </div>`;
+  }).join("");
+
+  // Alerts
+  const alerts=[
+    {icon:"💬",msg:"4 mensajes sin responder en chat",urgencia:"Alta",color:"#ef4444"},
+    {icon:"📦",msg:"Pedido PED-002 retrasado 2 días",urgencia:"Alta",color:"#ef4444"},
+    {icon:"🎯",msg:"5 oportunidades sin actividad >3 días",urgencia:"Media",color:"#f59e0b"},
+    {icon:"📊",msg:"Stock bajo: MacBook Air M3 (5 unid.)",urgencia:"Media",color:"#f59e0b"},
+    {icon:"⭐",msg:"3 encuestas CSAT pendientes",urgencia:"Baja",color:"#6b7a99"},
+  ];
+  document.getElementById("dash-alerts").innerHTML=alerts.map(a=>`
+    <div class="alert-row">
+      <span class="alert-icon">${a.icon}</span>
+      <span class="alert-msg">${a.msg}</span>
+      ${badge(a.urgencia,a.color)}
+    </div>`).join("");
+}
+
+// ══════════════════════════════════════════════════════
+// CRM
+// ══════════════════════════════════════════════════════
+function renderCRM(busqueda=""){
+  const filtrados=clientes.filter(c=>
+    c.nombre.toLowerCase().includes(busqueda.toLowerCase())||
+    c.email.toLowerCase().includes(busqueda.toLowerCase())
+  );
+  document.getElementById("crm-count").textContent=`${filtrados.length} registros encontrados`;
+  document.getElementById("crm-tbody").innerHTML=filtrados.map(c=>`
+    <tr class="${selectedClientId===c.id?"selected":""}" onclick="selectClient(${c.id})">
+      <td>
+        <div class="cli-cell">
+          <div class="avatar" style="background:${SEG_COLORS[c.segmento]}22;border-color:${SEG_COLORS[c.segmento]}44;color:${SEG_COLORS[c.segmento]}">${initials(c.nombre)}</div>
+          <div><div class="cli-name">${c.nombre}</div><div class="cli-email">${c.email}</div></div>
+        </div>
+      </td>
+      <td>${badge(c.segmento,SEG_COLORS[c.segmento])}</td>
+      <td class="td-mono">${c.compras}</td>
+      <td class="td-mono td-green">${fmt(c.valor)}</td>
+      <td class="td-muted">${c.ultima}</td>
+      <td>${badge(c.estado,c.estado==="Activo"?"#22c55e":"#6b7a99")}</td>
+      <td style="color:var(--muted)">›</td>
+    </tr>`).join("");
+}
+
+function selectClient(id){
+  if(selectedClientId===id){selectedClientId=null;closeDetail();renderCRM();}
+  else{
+    selectedClientId=id;
+    const c=clientes.find(x=>x.id===id);
+    document.getElementById("crm-layout").classList.add("with-detail");
+    const p=document.getElementById("detail-panel");
+    p.classList.add("open");
+    p.innerHTML=`
+      <div class="detail-top">
+        <div style="font-weight:700;font-size:15px">Perfil del cliente</div>
+        <button style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer" onclick="closeDetail()">×</button>
+      </div>
+      <div class="detail-avatar-wrap">
+        <div class="avatar lg" style="background:${SEG_COLORS[c.segmento]}22;border-color:${SEG_COLORS[c.segmento]};color:${SEG_COLORS[c.segmento]}">${initials(c.nombre)}</div>
+        <div class="detail-name">${c.nombre}</div>
+        <div class="detail-email">${c.email}</div>
+        <div style="margin-top:8px">${badge(c.segmento,SEG_COLORS[c.segmento])}</div>
+      </div>
+      <div class="detail-row"><span class="detail-key">📞 Teléfono</span><span class="detail-val">${c.telefono}</span></div>
+      <div class="detail-row"><span class="detail-key">🛒 Compras</span><span class="detail-val">${c.compras}</span></div>
+      <div class="detail-row"><span class="detail-key">💰 Valor total</span><span class="detail-val" style="color:var(--green)">${fmt(c.valor)}</span></div>
+      <div class="detail-row"><span class="detail-key">📅 Última compra</span><span class="detail-val">${c.ultima}</span></div>
+      <div class="detail-row"><span class="detail-key">🟢 Estado</span><span class="detail-val">${c.estado}</span></div>
+      <div class="detail-actions">
+        <button class="btn btn-blue">✉ Enviar email</button>
+        <button class="btn btn-ghost">📋 Ver pedidos</button>
+      </div>`;
+    renderCRM(document.getElementById("crm-search").value);
+  }
+}
+
+function closeDetail(){
+  selectedClientId=null;
+  document.getElementById("crm-layout").classList.remove("with-detail");
+  document.getElementById("detail-panel").classList.remove("open");
+  renderCRM(document.getElementById("crm-search").value);
+}
+
+function guardarCliente(){
+  const nombre=document.getElementById("f-nombre").value.trim();
+  const email=document.getElementById("f-email").value.trim();
+  if(!nombre||!email)return;
+  clientes.push({
+    id:Date.now(),nombre,email,
+    telefono:document.getElementById("f-tel").value||"—",
+    segmento:document.getElementById("f-seg").value,
+    compras:0,valor:0,ultima:new Date().toISOString().split("T")[0],estado:"Activo"
+  });
+  ["f-nombre","f-email","f-tel"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("f-seg").value="Nuevo";
+  toggleForm("crm-form");
+  renderCRM();
+}
+
+document.getElementById("crm-search").addEventListener("input",e=>renderCRM(e.target.value));
+
+// ══════════════════════════════════════════════════════
+// PIPELINE
+// ══════════════════════════════════════════════════════
+function renderPipeline(){
+  const etapas=["Contacto","Propuesta","Negociación","Ganado"];
+
+  // Stats
+  document.getElementById("pipe-stats").innerHTML=etapas.map(e=>{
+    const items=pipeline.filter(p=>p.etapa===e);
+    const total=items.reduce((s,p)=>s+p.valor,0);
+    return `<div class="pipe-stat" style="border-top:3px solid ${ETAPA_COLORS[e]}">
+      <div class="pipe-stat-label" style="color:${ETAPA_COLORS[e]}">${e}</div>
+      <div class="pipe-stat-val">${fmtK(total)}</div>
+      <div class="pipe-stat-sub">${items.length} oportunidades</div>
+    </div>`;
+  }).join("");
+
+  // Board columns
+  document.getElementById("pipe-board").innerHTML=etapas.map(e=>`
+    <div class="pipe-col" id="col-${e}" 
+      ondragover="event.preventDefault();this.classList.add('drag-over')" 
+      ondragleave="this.classList.remove('drag-over')"
+      ondrop="dropOpp(event,'${e}')">
+      <div class="pipe-col-header" style="color:${ETAPA_COLORS[e]}">
+        <span>${e}</span>
+        <span class="pipe-col-count" style="background:${ETAPA_COLORS[e]}22">${pipeline.filter(p=>p.etapa===e).length}</span>
+      </div>
+      ${pipeline.filter(p=>p.etapa===e).map(o=>`
+        <div class="opp-card" draggable="true" ondragstart="dragOpp(${o.id})">
+          <div class="opp-client">${o.cliente}</div>
+          <div class="opp-product">${o.producto}</div>
+          <div class="opp-footer">
+            <span class="opp-value">${fmtK(o.valor)}</span>
+            <span class="opp-prob">${o.prob}%</span>
+          </div>
+          <div class="opp-bar-wrap"><div class="opp-bar-fill" style="width:${o.prob}%;background:${ETAPA_COLORS[e]}"></div></div>
+          <div class="opp-meta"><span>👤 ${o.vendedor}</span><span>${o.fecha}</span></div>
+        </div>`).join("")}
+    </div>`).join("");
+}
+
+function dragOpp(id){dragId=id}
+function dropOpp(e,etapa){
+  e.preventDefault();
+  e.currentTarget.classList.remove("drag-over");
+  if(dragId){
+    pipeline=pipeline.map(o=>o.id===dragId?{...o,etapa}:o);
+    dragId=null;
+    renderPipeline();
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// CHAT
+// ══════════════════════════════════════════════════════
+function renderChat(){
+  renderInbox();
+  renderMessages();
+}
+
+function renderInbox(){
+  document.getElementById("inbox-list").innerHTML=mensajes.map(m=>`
+    <div class="inbox-item ${m.id===1?"active":""}" onclick="selectChat(${m.id})">
+      <div class="inbox-item-top">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="avatar" style="width:30px;height:30px;font-size:10px;background:${(CANAL_COLORS[m.canal]||"#3b82f6")}22;border-color:${(CANAL_COLORS[m.canal]||"#3b82f6")}44;color:${CANAL_COLORS[m.canal]||"#3b82f6"};flex-shrink:0">${m.avatar}</div>
+          <div>
+            <div class="inbox-name" style="font-weight:${m.leido?500:700}">${m.cliente}</div>
+            <div class="inbox-channel" style="color:${CANAL_COLORS[m.canal]||"#3b82f6"}">${m.canal}</div>
+          </div>
+        </div>
+        <div class="inbox-time">${m.hora}</div>
+      </div>
+      <div class="inbox-msg">${m.mensaje}</div>
+      ${!m.leido?'<div class="unread-dot"></div>':""}
+    </div>`).join("");
+}
+
+function selectChat(id){
+  mensajes=mensajes.map(m=>m.id===id?{...m,leido:true}:m);
+  const m=mensajes.find(x=>x.id===id);
+  document.getElementById("chat-avatar").textContent=m.avatar;
+  document.getElementById("chat-client-name").textContent=m.cliente;
+  document.getElementById("chat-channel").textContent=m.canal;
+  chatConv=[
+    {from:"cliente",text:m.mensaje,time:m.hora},
+    {from:"bot",text:`¡Hola ${m.cliente.split(" ")[0]}! 👋 Gracias por contactarnos. ¿En qué puedo ayudarte hoy?`,time:m.hora},
+  ];
+  renderMessages();
+  renderInbox();
+}
+
+function renderMessages(){
+  document.getElementById("chat-messages").innerHTML=chatConv.map(m=>`
+    <div class="msg-wrap ${m.from==="cliente"?"":"right"}">
+      ${m.from==="cliente"?`<div class="avatar" style="width:28px;height:28px;font-size:10px;background:#22c55e22;color:var(--green);flex-shrink:0">AG</div>`:""}
+      <div>
+        <div class="msg-bubble ${m.from}">
+          ${m.from==="bot"?'<div class="msg-label" style="color:var(--purple)">🤖 Asistente IA</div>':""}
+          ${m.from==="agent"?'<div class="msg-label" style="color:var(--blue)">👤 Agente</div>':""}
+          ${m.text}
+        </div>
+        <div class="msg-time" style="text-align:${m.from==="cliente"?"left":"right"}">${m.time}</div>
+      </div>
+    </div>`).join("");
+  const el=document.getElementById("chat-messages");
+  el.scrollTop=el.scrollHeight;
+}
+
+async function sendChat(){
+  const inp=document.getElementById("chat-input");
+  const txt=inp.value.trim();
+  if(!txt)return;
+  inp.value="";
+  const time=new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"});
+  chatConv.push({from:"agent",text:txt,time});
+  renderMessages();
+  
+  // Typing indicator
+  const msgs=document.getElementById("chat-messages");
+  const typing=document.createElement("div");
+  typing.className="msg-wrap right";
+  typing.id="typing";
+  typing.innerHTML=`<div class="typing-bubble">Escribiendo...</div>`;
+  msgs.appendChild(typing);
+  msgs.scrollTop=msgs.scrollHeight;
+
+  try{
+    const res=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-20250514",
+        max_tokens:1000,
+        system:"Eres un asistente de atención al cliente de una tienda retail de electrónica y artículos del hogar en México llamada RetailSystem. Responde de forma amable, concisa y en español. Puedes ayudar con información de productos, precios, disponibilidad, tiempos de entrega y posventa. Usa emojis con moderación.",
+        messages:chatConv.filter(m=>m.from!=="bot").map(m=>({
+          role:m.from==="agent"?"assistant":"user",
+          content:m.text
+        }))
+      })
+    });
+    const data=await res.json();
+    const reply=data.content?.[0]?.text||"¿En qué más puedo ayudarte?";
+    document.getElementById("typing")?.remove();
+    chatConv.push({from:"bot",text:reply,time:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"})});
+  }catch{
+    document.getElementById("typing")?.remove();
+    chatConv.push({from:"bot",text:"Entendido. Un agente te atenderá en breve. 😊",time});
+  }
+  renderMessages();
+}
+
+document.getElementById("chat-send").addEventListener("click",sendChat);
+document.getElementById("chat-input").addEventListener("keydown",e=>{if(e.key==="Enter")sendChat()});
+
+// ══════════════════════════════════════════════════════
+// PEDIDOS
+// ══════════════════════════════════════════════════════
+function renderPedidos(){
+  const estados=["Pendiente","Procesando","En tránsito","Entregado"];
+  document.getElementById("pedido-stats").innerHTML=estados.map(e=>`
+    <div class="pedido-stat" style="border:1px solid ${ESTADO_COLORS[e]}33;border-top:3px solid ${ESTADO_COLORS[e]}">
+      <div class="pedido-stat-label" style="color:${ESTADO_COLORS[e]}">${e}</div>
+      <div class="pedido-stat-val">${pedidos.filter(p=>p.estado===e).length}</div>
+    </div>`).join("");
+
+  document.getElementById("pedido-tbody").innerHTML=pedidos.map(p=>`
+    <tr>
+      <td class="td-mono td-blue">${p.id}</td>
+      <td style="font-weight:600">${p.cliente}</td>
+      <td class="td-muted">${p.producto}</td>
+      <td class="td-mono">${p.cantidad}</td>
+      <td class="td-mono td-green">${fmt(p.precio*p.cantidad)}</td>
+      <td>${badge(p.estado,ESTADO_COLORS[p.estado])}</td>
+      <td class="td-muted">${p.fecha}</td>
+      <td>
+        <select class="estado-select" onchange="cambiarEstado('${p.id}',this.value)">
+          ${["Pendiente","Procesando","En tránsito","Entregado"].map(e=>`<option${e===p.estado?" selected":""}>${e}</option>`).join("")}
+        </select>
+      </td>
+    </tr>`).join("");
+}
+
+function cambiarEstado(id,estado){
+  pedidos=pedidos.map(p=>p.id===id?{...p,estado}:p);
+  renderPedidos();
+}
+
+function guardarPedido(){
+  const cliente=document.getElementById("p-cliente").value.trim();
+  const producto=document.getElementById("p-producto").value.trim();
+  if(!cliente||!producto)return;
+  const n=pedidos.length+1;
+  pedidos.unshift({
+    id:`PED-00${n}`,cliente,producto,
+    cantidad:parseInt(document.getElementById("p-qty").value)||1,
+    precio:parseFloat(document.getElementById("p-precio").value)||0,
+    estado:"Pendiente",
+    fecha:new Date().toISOString().split("T")[0]
+  });
+  ["p-cliente","p-producto","p-precio"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("p-qty").value="1";
+  toggleForm("pedido-form");
+  renderPedidos();
+}
+
+// ══════════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════════
+function toggleForm(id){
+  const el=document.getElementById(id);
+  el.classList.toggle("open");
+}
+
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
+renderDashboard();
+</script>
+</body>
+</html>
